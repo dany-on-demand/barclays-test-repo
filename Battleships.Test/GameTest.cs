@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Battleships;
@@ -30,11 +31,35 @@ namespace Battleships.Test
             Game.Play(ships, guesses).Should().Be(1);
         }
 
-        //[Fact]
-        //public void TestBounds()
-        //{
-        //    // assert that app fails/throws if ships are out of the 10x10 grid
-        //}
+        [Fact]
+        public void Test0Guess()
+        {
+            // assert that app gracefully accepts 0 guesses
+            var ships = new[] { "3:2,3:5" };
+            var guesses = new string[0];
+            Game.Play(ships, guesses).Should().Be(0);
+        }
+
+
+        [Fact]
+        public void TestNoDiagonalShip()
+        {
+            // assert that app fails/throws if a ship is diagonal
+            var ship = "1:1,10:10";
+            Assert.Throws<InvalidDataException>(() => Ship.FromString(ship));
+        }
+
+
+        [Fact]
+        public void TestBounds()
+        {
+            // assert that app fails/throws if ships are out of the 10x10 grid
+            var ship = "11:1,11:11";
+            Assert.Throws<InvalidDataException>(() => Ship.FromString(ship));
+
+            ship = "10:0,10:19";
+            Assert.Throws<InvalidDataException>(() => Ship.FromString(ship));
+        }
 
         //[Fact]
         //public void TestInvalidShipDefinition()

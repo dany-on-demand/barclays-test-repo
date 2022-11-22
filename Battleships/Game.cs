@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,6 +64,16 @@ namespace Battleships
             var beginning = Cell.FromString(parts[0]);
             var end = Cell.FromString(parts[1]);
 
+            // bounds & diagonal check @Prettify - Daniel 22.11.2022
+            if ((beginning.X != end.X && beginning.Y != end.Y)
+                || (beginning.X < 0 || beginning.X > 9)
+                || (beginning.Y < 0 || beginning.Y > 9)
+                || (end.X < 0 || end.X > 9)
+                || (end.Y < 0 || end.Y > 9))
+            {
+                throw new InvalidDataException();
+            }
+
             for (int x = beginning.X; x <= end.X; x++)
             {
                 for (int y = beginning.Y; y <= end.Y; y++)
@@ -90,8 +101,10 @@ namespace Battleships
         {
             var parts = cell_definition.Split(':');
 
-            var x = int.Parse(parts[0]);
-            var y = int.Parse(parts[1]);
+            // we assume that the input coords are 1 - 10 while the internal grid starts indexing at 0
+            // so we decrement the input x/y value
+            var x = int.Parse(parts[0]) - 1;
+            var y = int.Parse(parts[1]) - 1;
 
             return new Cell(x, y);
         }
