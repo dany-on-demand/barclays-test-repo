@@ -65,11 +65,7 @@ namespace Battleships
             var end = Cell.FromString(parts[1]);
 
             // bounds & diagonal check @Prettify - Daniel 22.11.2022
-            if ((beginning.X != end.X && beginning.Y != end.Y)
-                || (beginning.X < 0 || beginning.X > 9)
-                || (beginning.Y < 0 || beginning.Y > 9)
-                || (end.X < 0 || end.X > 9)
-                || (end.Y < 0 || end.Y > 9))
+            if (!ShipIsValid(beginning, end))
             {
                 throw new InvalidDataException();
             }
@@ -83,6 +79,27 @@ namespace Battleships
             }
 
             return new_ship;
+        }
+
+        private static bool ShipIsValid(Cell beginning, Cell end)
+        {
+            var isInvalid = beginning.X != end.X && beginning.Y != end.Y;
+            isInvalid = isInvalid || (beginning.X < 0 || beginning.X > 9);
+            isInvalid = isInvalid || (beginning.Y < 0 || beginning.Y > 9);
+            isInvalid = isInvalid || (end.X < 0 || end.X > 9);
+            isInvalid = isInvalid || (end.Y < 0 || end.Y > 9);
+
+            
+            // + 1 because the beginning/end is part of the length
+            var delta_x = Math.Abs(end.X - beginning.X) + 1;
+            var delta_y = Math.Abs(end.Y - beginning.Y) + 1;
+
+            if (delta_y > delta_x) isInvalid = isInvalid || (delta_y < 2 || delta_y > 4); 
+            else isInvalid = isInvalid || (delta_x < 2 || delta_x > 4);
+
+
+
+            return !isInvalid;
         }
     }
 

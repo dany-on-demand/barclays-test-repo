@@ -15,7 +15,7 @@ namespace Battleships.Test
         public void TestPlay()
         {
             var ships = new[] { "3:2,3:5" };
-            var guesses = new[] { "7:0", "3:3" };
+            var guesses = new[] { "7:1", "3:3" };
             Game.Play(ships, guesses).Should().Be(1);
         }
 
@@ -61,10 +61,20 @@ namespace Battleships.Test
             Assert.Throws<InvalidDataException>(() => Ship.FromString(ship));
         }
 
-        //[Fact]
-        //public void TestInvalidShipDefinition()
-        //{
-        //    // assert that app fails/throws if there is a ship definition that's diagonal
-        //}
+        [Fact]
+        public void TestLongship()
+        {
+            // assert that app fails/throws if ships are too long (range is 2-4)
+            var ship = "3:1,3:5";
+            Assert.Throws<InvalidDataException>(() => Ship.FromString(ship));
+        }
+
+        [Fact]
+        public void TestShortship()
+        {
+            // assert that app fails/throws if ships are too short (range is 2-4)
+            var ship = "3:1,3:1";
+            Assert.Throws<InvalidDataException>(() => Ship.FromString(ship));
+        }
     }
 }
