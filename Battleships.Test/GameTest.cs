@@ -12,13 +12,45 @@ namespace Battleships.Test
     public class GameTest
     {
         [Fact]
-        public void TestPlay()
+        public void TestShipSunk()
         {
             var ships = new[] { "3:2,3:5" };
-            var guesses = new[] { "7:1", "3:3" };
+            var guesses = new[] { "3:2", "3:3", "3:4", "3:5" };
             Game.Play(ships, guesses).Should().Be(1);
         }
 
+        [Fact]
+        public void TestShipSunkTwice()
+        {
+            var ships = new[] { "3:2,3:5" };
+            var guesses = new[] { "3:2", "3:3", "3:4", "3:5", "3:2", "3:3", "3:4", "3:5" };
+            Game.Play(ships, guesses).Should().Be(1);
+        }
+
+        [Fact]
+        public void TestMultipleShipSunk()
+        {
+            var ships = new[] { "3:2,3:3", "4:2,4:3" };
+            var guesses = new[] { "3:2", "3:3", "4:2", "4:3" };
+            Game.Play(ships, guesses).Should().Be(2);
+        }
+
+        [Fact]
+        public void TestNotEnoughHits()
+        {
+            var ships = new[] { "3:2,3:5" };
+            var guesses = new[] { "3:2" };
+            Game.Play(ships, guesses).Should().Be(0);
+        }
+
+
+        [Fact]
+        public void TestSeaHitsOnly()
+        {
+            var ships = new[] { "3:2,3:5" };
+            var guesses = new[] { "1:1", "10:10" };
+            Game.Play(ships, guesses).Should().Be(0);
+        }
 
         // this is fuzzy test for fun, not an actual unit test the way XUnit understands it
         [Fact]
@@ -28,7 +60,7 @@ namespace Battleships.Test
             var random = new Random(); //
             var random_y = random.Next(2, 5 + 1);
             var guesses = new[] { $"3:{random_y}" };
-            Game.Play(ships, guesses).Should().Be(1);
+            Game.Play(ships, guesses).Should().Be(0);
         }
 
         [Fact]

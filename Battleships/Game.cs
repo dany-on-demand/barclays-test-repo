@@ -19,19 +19,23 @@ namespace Battleships
         // guesses: each string represents the co-ordinate of a guess
         //   e.g. "7:0" - misses the ship above, "3:3" hits it.
         // returns: the number of ships sunk by the set of guesses
+
+        public const uint MAX_GRID_SIZE_X = 10;
+        public const uint MAX_GRID_SIZE_Y = 10;
+
         public static int Play(string[] ships, string[] guesses)
         {
-            var grid = new bool[10, 10];
+            var grid = new Ship[MAX_GRID_SIZE_X, MAX_GRID_SIZE_Y];
 
             foreach (string ship_definition in ships)
             {
                 var ship = Ship.FromString(ship_definition);
 
-                // iterate over each cell in the ship
-                foreach (var cell in ship.Cells)
+                // iterate over each ship coordinate
+                foreach (var coord in ship.Coords)
                 {
-                    // set the cell to true
-                    grid[cell.X, cell.Y] = true;
+                    // add the ship _reference_ to the grid
+                    grid[coord.X, coord.Y] = ship;
                 }
             }
 
@@ -40,91 +44,19 @@ namespace Battleships
 
             foreach (string guess in guesses)
             {
-                var cell = Cell.FromString(guess);
+                var cell = Coords.FromString(guess);
 
-                if (grid[cell.X, cell.Y])
+                var ship = grid[cell.X, cell.Y];
+                if (ship != null && !ship.IsSunk())
                 {
-                    ships_sunk++;
+                    // @Note: kind of needlessly complicated logic here - we could reach into ship.Coords
+                    // and do the hit check ourselves here but whatever we're sticking to OOP - Daniel 22.11.2022
+                    ship.HitShip(cell);
+                    if (ship.IsSunk()) ships_sunk++;
                 }
             }
 
             return ships_sunk;
         }
     }
-
-    public class Ship {
-        public List<Cell> Cells = new List<Cell>();
-
-        public static Ship FromString( string ship_definition )
-        {
-            var new_ship = new Ship();
-
-            var parts = ship_definition.Split(',');
-
-            var beginning = Cell.FromString(parts[0]);
-            var end = Cell.FromString(parts[1]);
-
-            // bounds & diagonal check @Prettify - Daniel 22.11.2022
-            if (!ShipIsValid(beginning, end))
-            {
-                throw new InvalidDataException();
-            }
-
-            for (int x = beginning.X; x <= end.X; x++)
-            {
-                for (int y = beginning.Y; y <= end.Y; y++)
-                {
-                    new_ship.Cells.Add(new Cell(x, y));
-                }
-            }
-
-            return new_ship;
-        }
-
-        private static bool ShipIsValid(Cell beginning, Cell end)
-        {
-            var isInvalid = beginning.X != end.X && beginning.Y != end.Y;
-            isInvalid = isInvalid || (beginning.X < 0 || beginning.X > 9);
-            isInvalid = isInvalid || (beginning.Y < 0 || beginning.Y > 9);
-            isInvalid = isInvalid || (end.X < 0 || end.X > 9);
-            isInvalid = isInvalid || (end.Y < 0 || end.Y > 9);
-
-            
-            // + 1 because the beginning/end is part of the length
-            var delta_x = Math.Abs(end.X - beginning.X) + 1;
-            var delta_y = Math.Abs(end.Y - beginning.Y) + 1;
-
-            if (delta_y > delta_x) isInvalid = isInvalid || (delta_y < 2 || delta_y > 4); 
-            else isInvalid = isInvalid || (delta_x < 2 || delta_x > 4);
-
-
-
-            return !isInvalid;
-        }
-    }
-
-    public class Cell
-    {
-        public int X;
-        public int Y;
-
-        public Cell(int x, int y)
-        {
-            this.X = x;
-            this.Y = y;
-        }
-
-        public static Cell FromString(string cell_definition)
-        {
-            var parts = cell_definition.Split(':');
-
-            // we assume that the input coords are 1 - 10 while the internal grid starts indexing at 0
-            // so we decrement the input x/y value
-            var x = int.Parse(parts[0]) - 1;
-            var y = int.Parse(parts[1]) - 1;
-
-            return new Cell(x, y);
-        }
-    }
-
 }
